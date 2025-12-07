@@ -1,13 +1,25 @@
+import { prisma } from "@/lib/prisma";
 import SearchBar from "@/components/SearchBar";
 import AdMarquee from "@/components/AdMarquee";
 import SidebarAds from "@/components/SidebarAds";
 import Discover from "@/components/Discover";
 
 export default async function Home() {
+  const [topAds, bottomAds] = await Promise.all([
+    prisma.advertisement.findMany({
+      where: { position: "TOP", active: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.advertisement.findMany({
+      where: { position: "BOTTOM", active: true },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
   return (
     <div className="min-h-screen">
       {/* Top ads */}
-      <AdMarquee position="TOP" />
+      <AdMarquee ads={topAds} />
 
       {/* Sidebar ads */}
       <SidebarAds />
@@ -16,18 +28,36 @@ export default async function Home() {
         <section className="rounded-2xl bg-[#ffd000] px-8 py-12 text-[#c8102e] shadow-sm">
           <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2">
             <div>
-              <h1 className="text-4xl font-bold">The Future of RR Nagar Starts Here</h1>
-              <p className="mt-2 text-xl opacity-90" lang="kn">RR ನಗರದ ಹೊಸ ಡಿಜಿಟಲ್ ಅನುಭವ</p>
+              <h1 className="text-4xl font-bold">
+                The Future of RR Nagar Starts Here
+              </h1>
+              <p
+                className="mt-2 text-xl opacity-90"
+                lang="kn"
+              >
+                RR ನಗರದ ಹೊಸ ಡಿಜಿಟಲ್ ಅನುಭವ
+              </p>
               <p className="mt-4 max-w-3xl opacity-90">
-                RRnagar.com connects residents of Rajarajeshwari Nagar with trusted neighbourhood stores and service providers.
-                Buy local — fast, reliable, and delivered.
+                RRnagar.com connects residents of Rajarajeshwari Nagar with
+                trusted neighbourhood stores and service providers. Buy local —
+                fast, reliable, and delivered.
               </p>
               <div className="mt-8">
                 <SearchBar />
               </div>
               <div className="mt-6 flex gap-3">
-                <a href="/catalog" className="rounded bg-black/10 px-4 py-2 font-medium text-[#c8102e] hover:bg-black/20">Browse Catalog</a>
-                <a href="/supplier/onboard" className="rounded bg-black/10 px-4 py-2 font-medium text-[#c8102e] hover:bg-black/20">Become a Supplier</a>
+                <a
+                  href="/catalog"
+                  className="rounded bg-black/10 px-4 py-2 font-medium text-[#c8102e] hover:bg-black/20"
+                >
+                  Browse Catalog
+                </a>
+                <a
+                  href="/supplier/onboard"
+                  className="rounded bg-black/10 px-4 py-2 font-medium text-[#c8102e] hover:bg-black/20"
+                >
+                  Become a Supplier
+                </a>
               </div>
             </div>
             <div className="relative hidden h-full md:block">
@@ -52,9 +82,15 @@ export default async function Home() {
               { name: "Electronics", emoji: "🔌" },
               { name: "Fitness", emoji: "🏋️" },
             ].map((c) => (
-              <a key={c.name} href="/catalog" className="group rounded-2xl border bg-muted p-4 text-center shadow-sm transition hover:shadow">
+              <a
+                key={c.name}
+                href="/catalog"
+                className="group rounded-2xl border bg-muted p-4 text-center shadow-sm transition hover:shadow"
+              >
                 <div className="text-3xl">{c.emoji}</div>
-                <div className="mt-2 text-sm font-medium group-hover:text-primary">{c.name}</div>
+                <div className="mt-2 text-sm font-medium group-hover:text-primary">
+                  {c.name}
+                </div>
               </a>
             ))}
           </div>
@@ -64,8 +100,7 @@ export default async function Home() {
       </main>
 
       {/* Bottom ads */}
-      <AdMarquee position="BOTTOM" />
-
+      <AdMarquee ads={bottomAds} />
     </div>
   );
 }
