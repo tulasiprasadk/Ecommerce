@@ -1,10 +1,9 @@
-import { PrismaClient } from "@/generated/prisma";
+import { PrismaClient } from "../generated/prisma";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import Database from "better-sqlite3";
 
 const db = new Database("/vercel/path0/sqlite.db");
 
-// Singleton pattern for hot reload in dev
 let prisma: PrismaClient;
 
 if (process.env.NODE_ENV === "production") {
