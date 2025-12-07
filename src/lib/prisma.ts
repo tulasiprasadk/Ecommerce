@@ -1,13 +1,21 @@
-import { PrismaClient } from "@/generated/prisma/client";
+import { PrismaClient } from "@/generated/prisma";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import Database from "better-sqlite3";
 
+const db = new Database("/vercel/path0/sqlite.db");
+
+// Singleton pattern for hot reload in dev
 let prisma: PrismaClient;
 
 if (process.env.NODE_ENV === "production") {
-  prisma = new PrismaClient();
+  prisma = new PrismaClient({
+    adapter: new PrismaBetterSqlite3(db),
+  });
 } else {
-  // Prevent next.js hot-reload from creating new instances
   if (!(global as any).prisma) {
-    (global as any).prisma = new PrismaClient();
+    (global as any).prisma = new PrismaClient({
+      adapter: new PrismaBetterSqlite3(db),
+    });
   }
   prisma = (global as any).prisma;
 }
