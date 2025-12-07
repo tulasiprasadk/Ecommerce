@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
+import type { Advertisement } from "@/generated/prisma/client";
 
 export default async function SidebarAds() {
   const [left, right] = await Promise.all([
@@ -15,7 +16,7 @@ export default async function SidebarAds() {
   return (
     <>
       <div className="fixed left-2 top-24 z-40 flex w-32 flex-col gap-3">
-        {left.map((ad) => (
+        {left.map((ad: Advertisement) => (
           <Link
             key={ad.id}
             href={`/api/analytics/click?target=${encodeURIComponent(
@@ -35,7 +36,7 @@ export default async function SidebarAds() {
       </div>
 
       <div className="fixed right-2 top-24 z-40 flex w-32 flex-col gap-3">
-        {right.map((ad) => (
+        {right.map((ad: Advertisement) => (
           <Link
             key={ad.id}
             href={`/api/analytics/click?target=${encodeURIComponent(
