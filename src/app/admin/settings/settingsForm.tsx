@@ -1,8 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { PaymentOption } from "@/generated/prisma/client";  // ← runtime enum
-import type { Setting } from "@/generated/prisma/client";     // ← type only
+import type { Setting } from "@/generated/prisma/client";
+
+// Client components cannot import Prisma enums
+// So we define the options manually:
+const PAYMENT_OPTIONS = ["RAZORPAY", "UPI", "PI"] as const;
+
 
 
 export default function SettingsForm({ initial }: { initial: Setting }) {
