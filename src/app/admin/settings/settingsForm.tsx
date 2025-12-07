@@ -55,7 +55,7 @@ export default function SettingsForm({ initial }: { initial: Setting }) {
           defaultValue={item.paymentOption}
           className="w-full rounded border px-3 py-2"
         >
-          {Object.values(PaymentOption).map((p) => (
+          {PAYMENT_OPTIONS.map((p) => (
             <option key={p} value={p}>
               {p}
             </option>
