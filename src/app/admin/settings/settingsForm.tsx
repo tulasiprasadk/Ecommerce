@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import type { Setting, PaymentOption } from "@/generated/prisma/client";
+import { PaymentOption } from "@/generated/prisma/client";  // ← runtime enum
+import type { Setting } from "@/generated/prisma/client";     // ← type only
+
 
 export default function SettingsForm({ initial }: { initial: Setting }) {
   const [item, setItem] = useState<Setting>(initial);
