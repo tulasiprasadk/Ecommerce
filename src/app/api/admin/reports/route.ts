@@ -2,8 +2,17 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
 
-// Add required Prisma types
 import type { Order, OrderItem } from "@/generated/prisma/client";
+
+// Custom type for included relations
+type OrderWithItems = Order & {
+  items: (OrderItem & {
+    listing: {
+      supplier: { name: string };
+      category: { slug: string; name: string };
+    };
+  })[];
+};
 
 export async function GET(req: Request) {
   const admin = await requireRole(["ADMIN"]);
@@ -23,7 +32,7 @@ export async function GET(req: Request) {
   const minPaise = min ? Math.round(parseFloat(min) * 100) : undefined;
   const maxPaise = max ? Math.round(parseFloat(max) * 100) : undefined;
 
-  const items = await prisma.order.findMany({
+  const items = (await prisma.order.findMany({
     where: {
       customer: phone ? { phone } : undefined,
       items: title
@@ -46,13 +55,12 @@ export async function GET(req: Request) {
       customer: true,
     },
     orderBy: { createdAt: "desc" },
-  });
+  })) as OrderWithItems[];
 
-  // Typed version to satisfy strict TS mode
   const filtered =
     supplier || category
-      ? items.filter((o: Order) =>
-          o.items.some((it: OrderItem) => {
+      ? items.filter((o) =>
+          o.items.some((it) => {
             const supplierMatch = supplier
               ? it.listing.supplier.name.includes(supplier)
               : true;
