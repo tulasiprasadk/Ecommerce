@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Setting, PaymentOption } from "@prisma/client";
+import type { Setting, PaymentOption } from "@/generated/prisma/client";
 
 export default function SettingsForm({ initial }: { initial: Setting }) {
   const [item, setItem] = useState<Setting>(initial);
@@ -13,25 +13,37 @@ export default function SettingsForm({ initial }: { initial: Setting }) {
       className="mt-4 grid grid-cols-1 gap-4"
     >
       <div>
-        <label className="block text-sm text-gray-700">Store Name</label>
+        <label className="block text-sm text-gray-700">Margin %</label>
         <input
-          name="storeName"
-          defaultValue={item.storeName}
+          name="marginPercent"
+          type="number"
+          defaultValue={item.marginPercent}
           className="w-full rounded border px-3 py-2"
         />
       </div>
 
       <div>
-        <label className="block text-sm text-gray-700">Contact Email</label>
+        <label className="block text-sm text-gray-700">Platform Fee (Paise)</label>
         <input
-          name="contactEmail"
-          defaultValue={item.contactEmail}
+          name="platformFeeFixedPaise"
+          type="number"
+          defaultValue={item.platformFeeFixedPaise}
           className="w-full rounded border px-3 py-2"
         />
       </div>
 
       <div>
-        <label className="block text-sm text-gray-700">Payments</label>
+        <label className="block text-sm text-gray-700">Delivery Fee (Paise)</label>
+        <input
+          name="deliveryFeeFixedPaise"
+          type="number"
+          defaultValue={item.deliveryFeeFixedPaise}
+          className="w-full rounded border px-3 py-2"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm text-gray-700">Payment Option</label>
         <select
           name="paymentOption"
           defaultValue={item.paymentOption}
