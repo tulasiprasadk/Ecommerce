@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  name      String?
+  role      UserRole @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  supplier  Supplier?
+  orders    Order[]
+  messages  Message[]
+}
+
+enum UserRole {
+  ADMIN
+  SUPPLIER
+  CUSTOMER
+}
+
+model Supplier {
+  id         String    @id @default(cuid())
+  userId     String    @unique
+  user       User      @relation(fields: [userId], references: [id])
+  name       String
+  address    String?
+  landmark   String?
+  categories Category[] @relation("SupplierCategories")
+  listings   Listing[]
+  transactions Transaction[]
+  notifications Notification[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  slug     String    @unique
+  listings Listing[]
+  suppliers Supplier[] @relation("SupplierCategories")
+}
+
+model Listing {
+  id          String    @id @default(cuid())
+  supplierId  String
+  supplier    Supplier  @relation(fields: [supplierId], references: [id])
+  categoryId  String
+  category    Category  @relation(fields: [categoryId], references: [id])
+  type        ListingType @default(PRODUCT)
+  title       String
+  description String?
+  pricePaise  Int
+  imageUrl    String?
+  available   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  orderItems  OrderItem[]
+}
+
+enum ListingType {
+  PRODUCT
+  SERVICE
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  customerId   String
+  customer     User        @relation(fields: [customerId], references: [id])
+  status       OrderStatus @default(PENDING)
+  paymentMethod PaymentMethod?
+  address      String?
+  landmark     String?
+  totalAmountPaise  Int
+  platformMarginPercent Int @default(15)
+  platformFeePaise  Int @default(0)
+  deliveryFeePaise  Int @default(0)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  items        OrderItem[]
+  transaction  Transaction?
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FULFILLED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  RAZORPAY
+  UPI
+  PI
+}
+
+model OrderItem {
+  id         String  @id @default(cuid())
+  orderId    String
+  order      Order   @relation(fields: [orderId], references: [id])
+  listingId  String
+  listing    Listing @relation(fields: [listingId], references: [id])
+  quantity   Int     @default(1)
+  amountPaise     Int
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id])
+  supplierId  String
+  supplier    Supplier @relation(fields: [supplierId], references: [id])
+  amountGrossPaise Int
+  marginPaise      Int
+  platformFeePaise Int
+  deliveryFeePaise Int
+  amountNetPaise   Int
+  paymentStatus PaymentStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+}
+
+enum PaymentStatus {
+  PENDING
+  RELEASED
+}
+
+model Advertisement {
+  id        String   @id @default(cuid())
+  position  AdPosition
+  imageUrl  String
+  targetUrl String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+enum AdPosition {
+  TOP
+  BOTTOM
+  LEFT
+  RIGHT
+}
+
+model Setting {
+  id                      String  @id @default(cuid())
+  marginPercent           Int     @default(15)
+  platformFeeFixedPaise   Int @default(0)
+  deliveryFeeFixedPaise   Int @default(0)
+  lowOrderThresholdPaise  Int @default(0)
+  paymentOption           PaymentOption @default(RAZORPAY)
+  upiVpa                  String? 
+  razorpayKeyId           String?
+  razorpayKeySecret       String?
+  whatsappSupportNumber   String?
+  updatedAt               DateTime @updatedAt
+}
+
+enum PaymentOption {
+  RAZORPAY
+  UPI
+  PI
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  type      String
+  meta      Json?
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  name      String?
+  phone     String?
+  email     String?
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  type      String
+  payload   Json?
+  createdAt DateTime @default(now())
+}
