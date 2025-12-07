@@ -1,25 +1,59 @@
 import { prisma } from "@/lib/prisma";
+import type { Order, OrderItem } from "@/generated/prisma/client";
 
-export default async function Success({ searchParams }: { searchParams: Promise<{ order?: string }> }) {
-  const { order: orderParam } = await searchParams;
-  const id = orderParam || "";
-  const ord = id ? await prisma.order.findUnique({ where: { id }, include: { items: { include: { listing: true } }, customer: true } }) : null;
-  if (!ord) return <div className="p-10">Order not found</div>;
+export default async function OrderSuccess({
+  searchParams,
+}: {
+  searchParams: { id?: string };
+}) {
+  const id = searchParams.id;
+
+  if (!id) {
+    return (
+      <div className="mx-auto max-w-2xl p-10 text-center">
+        Invalid order ID
+      </div>
+    );
+  }
+
+  const ord: (Order & { items: (OrderItem & { listing: { title: string } })[] }) | null =
+    await prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: { include: { listing: true } },
+      },
+    });
+
+  if (!ord) {
+    return (
+      <div className="mx-auto max-w-2xl p-10 text-center">
+        Order not found
+      </div>
+    );
+  }
+
   return (
-    <div className="mx-auto max-w-xl px-4 py-10">
-      <h2 className="text-2xl font-bold">Payment Successful</h2>
-      <p className="mt-2 text-zinc-700">Order ID: {ord.id}</p>
-      <p className="mt-1 text-zinc-700">Status: {ord.status}</p>
-      <div className="mt-4 rounded border p-4">
-        <div className="font-semibold">Items</div>
+    <div className="mx-auto max-w-2xl p-10">
+      <h2 className="text-2xl font-bold text-green-600">Order Successful 🎉</h2>
+
+      <div className="mt-6 rounded-xl border p-6 shadow-sm">
+        <div className="font-semibold">Order ID</div>
+        <div className="text-sm text-gray-700">{ord.id}</div>
+
+        <div className="mt-4 font-semibold">Total Amount</div>
+        <div className="text-sm text-gray-700">
+          ₹{(ord.totalAmountPaise / 100).toFixed(2)}
+        </div>
+
+        <div className="mt-4 font-semibold">Items</div>
         <ul className="mt-2 text-sm">
-          {ord.items.map((it) => (
-            <li key={it.id}>{it.listing.title} — ₹{(it.amountPaise / 100).toFixed(2)}</li>
+          {ord.items.map((it: OrderItem & { listing: { title: string } }) => (
+            <li key={it.id}>
+              {it.listing.title} — ₹{(it.amountPaise / 100).toFixed(2)}
+            </li>
           ))}
         </ul>
-        <div className="mt-3 font-semibold">Total: ₹{(ord.totalAmountPaise / 100).toFixed(2)}</div>
       </div>
-      <a href="/catalog" className="mt-6 inline-block rounded bg-black px-4 py-2 text-white">Continue Shopping</a>
     </div>
   );
 }
