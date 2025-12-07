@@ -1,6 +1,6 @@
 import SearchBar from "@/components/SearchBar";
-import { AdMarquee } from "@/components/AdMarquee";
-import { SidebarAds } from "@/components/SidebarAds";
+import AdMarquee from "@/components/AdMarquee";
+import SidebarAds from "@/components/SidebarAds";
 import Discover from "@/components/Discover";
 
 export default async function Home() {
